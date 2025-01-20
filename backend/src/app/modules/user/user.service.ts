@@ -8,7 +8,9 @@ const registerUser = async (userData: IUser) => {
 };
 
 const loginUser = async (payload: IUser) => {
-  const user = await User.findOne({ email: payload.email }).select("password");
+  const user = await User.findOne({ email: payload.email }).select(
+    "password email role"
+  );
   if (!user || !(await user.comparePassword(payload.password))) {
     throw new Error("Invalid email or password");
   }

@@ -9,7 +9,7 @@ interface ErrorResponse {
 }
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  console.log(err.statusCode);
+  console.log(err);
   //setting default values
   let message = err.message || "Internal Server Error";
 
