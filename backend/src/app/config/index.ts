@@ -15,6 +15,13 @@ export default {
     access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN,
     refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN,
   },
+  sp: {
+    endpoint: process.env.SP_ENDPOINT,
+    username: process.env.SP_USERNAME,
+    password: process.env.SP_PASSWORD,
+    prefix: process.env.SP_PREFIX,
+    return_url: process.env.SP_RETURN_URL,
+  },
 };
 
 /* 
