@@ -8,8 +8,7 @@ const createOrder = catchAsync(async (req, res) => {
   const order = await orderService.createOrder(
     req.ip as string,
     user,
-    res,
-    req
+    req.body
   );
 
   sendResponse(res, {
