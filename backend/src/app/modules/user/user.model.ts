@@ -21,8 +21,9 @@ const UserSchema = new Schema<IUser, TUserModel, IUserMethods>(
       enum: Object.values(UserRole),
       default: UserRole.user,
     },
-    phone: { type: String, required: true },
-    address: { type: String },
+    phone: { type: String, default: "N/A" },
+    address: { type: String, default: "N/A" },
+    city: { type: String, default: "N/A" },
   },
   {
     timestamps: true,

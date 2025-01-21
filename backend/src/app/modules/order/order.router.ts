@@ -5,6 +5,9 @@ import { UserRole } from "../user/user.constants";
 
 const orderRouter = Router();
 
-orderRouter.route("/").post(auth(UserRole.user), orderController.createOrder);
+orderRouter
+  .route("/")
+  .post(auth(UserRole.user), orderController.createOrder)
+  .get(auth(UserRole.user), orderController.verifyPayment);
 
 export default orderRouter;
