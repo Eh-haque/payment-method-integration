@@ -1,72 +1,60 @@
-import Shurjopay from "shurjopay";
-import config from "../../config";
 import sendResponse from "../../utils/sendResponse";
 import { Request, Response } from "express";
+import { IUser } from "../user/user.interface";
+import Order from "./order.model";
+import { orderUtils } from "./order.utils";
+import Product from "../product/product.model";
+import { IProduct } from "../product/product.interface";
 
-const shurjopay = new Shurjopay();
+const createOrder = async (
+  client_ip: string,
+  user: IUser,
+  res: Response,
+  req: Request
+) => {
+  console.log(req.body, client_ip);
 
-// console.log({ shurjopay });
+  const products = req.body.products;
 
-shurjopay.config(
-  config.sp.endpoint!,
-  config.sp.username!,
-  config.sp.password!,
-  config.sp.prefix!,
-  config.sp.return_url!
-);
-
-const createOrder = async (res: Response, req: Request) => {
-  const { amount, order_id, customer_name, customer_phone } = req.body;
-
-  const paymentData = await shurjopay.makePayment(
-    {
-      amount: 1000,
-      order_id: "order123",
-      currency: "BDT",
-      customer_name: "John Doe",
-      customer_address: "Dhaka",
-      customer_phone: "01712345678",
-      customer_city: "Dhaka",
-      client_ip: req.ip,
-
-      customer_email: "sdklfj@saldkf.sdf",
-    },
-    (response) => {
-      sendResponse(res, {
-        statusCode: 201,
-        message: "Order placed successfully",
-        data: response,
-      });
-    },
-    (error) => {
-      sendResponse(res, {
-        statusCode: 400,
-        message: error.message,
-        data: error,
-      });
-    }
+  let totalPrice = 0;
+  const productDetails = await Promise.all(
+    products.map(async (item: { product: string; quantity: number }) => {
+      const product = await Product.findById(item.product);
+      if (product) {
+        const subtotal = product ? (product.price || 0) * item.quantity : 0;
+        totalPrice += subtotal;
+        return item;
+      }
+    })
   );
-  return { paymentData };
+
+  const order_id = orderUtils.generateTransactionId();
+  const order = await Order.create({
+    user,
+    products: productDetails,
+    totalPrice,
+    transactionId: order_id,
+  });
+
+  const paymentDetails = {
+    amount: totalPrice,
+    order_id,
+    currency: "BDT",
+    customer_name: user.name,
+    customer_address: user.address,
+    customer_phone: user.phone,
+    customer_city: user.city,
+    client_ip,
+  };
+
+  const payment = await orderUtils.makePaymentAsync(paymentDetails);
+
+  return { order, payment };
 };
 
-const verifyPayment = async (res: Response, sp_trxn_id: string) => {
-  shurjopay.verifyPayment(
-    sp_trxn_id,
-    (response) => {
-      sendResponse(res, {
-        statusCode: 201,
-        message: "Order placed successfully",
-        data: response,
-      });
-    },
-    (error) => {
-      sendResponse(res, {
-        statusCode: 400,
-        message: error.message,
-        data: error,
-      });
-    }
-  );
+const verifyPayment = async (sp_trxn_id: string) => {
+  const payment = await orderUtils.verifyPayment(sp_trxn_id);
+  return payment;
 };
 
 export const orderService = {
