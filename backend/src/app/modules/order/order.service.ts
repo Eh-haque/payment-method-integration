@@ -1,6 +1,5 @@
 import { IUser } from "../user/user.interface";
 import Order from "./order.model";
-import { orderUtils } from "./order.utils";
 import Product from "../product/product.model";
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
@@ -33,49 +32,10 @@ const createOrder = async (
     totalPrice,
   });
 
-  const paymentDetails = {
-    amount: totalPrice,
-    order_id: order._id,
-    currency: "BDT",
-    customer_name: user.name,
-    customer_email: user.email, // optional
-    customer_address: user.address,
-    customer_phone: user.phone,
-    customer_city: user.city,
-    client_ip,
-  };
-
-  const payment = await orderUtils.makePaymentAsync(paymentDetails);
-  if (payment?.transactionStatus) {
-    order = await order.updateOne({
-      transaction: {
-        id: payment.sp_order_id,
-        status: payment.transactionStatus,
-      },
-    });
-  }
-
-  return { order, payment };
+  return { order };
 };
 
-const verifyPayment = async (sp_trxn_id: string) => {
-  const verifiedResponse = await orderUtils.verifyPayment(sp_trxn_id);
-  const paymentStatus = await orderUtils.paymentStatus(sp_trxn_id);
-
-  if (verifiedResponse.length) {
-    await Order.findOneAndUpdate(
-      { "transaction.id": sp_trxn_id },
-      {
-        "transaction.code": verifiedResponse[0].sp_code,
-        "transaction.message": verifiedResponse[0].sp_message,
-        "transaction.status": verifiedResponse[0].transaction_status,
-        "transaction.method": verifiedResponse[0].method,
-        "transaction.date_time": verifiedResponse[0].date_time,
-      }
-    );
-  }
-  return { verifiedResponse, paymentStatus };
-};
+const verifyPayment = async (sp_trxn_id: string) => {};
 
 export const orderService = {
   createOrder,
