@@ -21,6 +21,7 @@ export default {
     password: process.env.SP_PASSWORD,
     prefix: process.env.SP_PREFIX,
     return_url: process.env.SP_RETURN_URL,
+    cancel_url: process.env.SP_CANCEL_URL,
   },
 };
 

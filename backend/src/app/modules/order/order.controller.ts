@@ -4,26 +4,31 @@ import { orderService } from "./order.service";
 import httpStatus from "http-status";
 
 const createOrder = catchAsync(async (req, res) => {
-  const order = await orderService.createOrder(res, req);
+  const user = req.user;
+  const order = await orderService.createOrder(
+    req.ip as string,
+    user,
+    res,
+    req
+  );
 
-  // sendResponse(res, {
-  //   statusCode: httpStatus.CREATED,
-  //   message: "Order placed successfully",
-  //   data: order,
-  // });
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    message: "Order placed successfully",
+    data: order,
+  });
 });
 
 const verifyPayment = catchAsync(async (req, res) => {
   const order = await orderService.verifyPayment(
-    res,
     req.query.sp_trxn_id as string
   );
 
-  // sendResponse(res, {
-  //   statusCode: httpStatus.CREATED,
-  //   message: "Order placed successfully",
-  //   data: order,
-  // });
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    message: "Order verified successfully",
+    data: order,
+  });
 });
 
 export const orderController = { createOrder, verifyPayment };
