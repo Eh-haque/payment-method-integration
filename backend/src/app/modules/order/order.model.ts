@@ -36,6 +36,7 @@ const OrderSchema = new Schema<IOrder>(
       message: String,
       status: String,
       method: String,
+      bank_status: String,
       date_time: String,
     },
   },

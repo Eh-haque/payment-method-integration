@@ -12,6 +12,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { Toaster } from "sonner";
 import AuthLayout from "./components/layouts/AuthLayout.tsx";
 import Order from "./pages/Order.tsx";
+import Verification from "./pages/Verification.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -26,6 +27,7 @@ createRoot(document.getElementById("root")!).render(
             </Route>
             <Route element={<AuthLayout />}>
               <Route path="order" element={<Order />} />
+              <Route path="order/verification" element={<Verification />} />
             </Route>
 
             {/* <Route path="concerts">

@@ -14,6 +14,7 @@ export interface IOrder extends Document {
     message: string;
     status: string;
     method: string;
+    bank_status: string;
     date_time: string;
   };
   createdAt?: Date;

@@ -18,6 +18,17 @@ const createOrder = catchAsync(async (req, res) => {
   });
 });
 
+const getOrders = catchAsync(async (req, res) => {
+  const user = req.user;
+  const order = await orderService.getOrders(user._id as string);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Order retrieved successfully",
+    data: order,
+  });
+});
+
 const verifyPayment = catchAsync(async (req, res) => {
   const order = await orderService.verifyPayment(
     req.query.sp_trxn_id as string
@@ -30,4 +41,4 @@ const verifyPayment = catchAsync(async (req, res) => {
   });
 });
 
-export const orderController = { createOrder, verifyPayment };
+export const orderController = { createOrder, getOrders, verifyPayment };

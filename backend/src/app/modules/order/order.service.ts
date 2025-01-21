@@ -10,7 +10,8 @@ const createOrder = async (
   user: IUser,
   payload: { products: { product: string; quantity: number }[] }
 ) => {
-  if (!payload.products.length)
+  console.log(payload);
+  if (!payload?.products?.length)
     throw new AppError(httpStatus.NOT_ACCEPTABLE, "Order is not specified");
 
   const products = payload.products;
@@ -58,9 +59,13 @@ const createOrder = async (
   return { order, payment };
 };
 
+const getOrders = async (userId: string) => {
+  const data = await Order.find({ user: userId }).sort({ createdAt: -1 });
+  return data;
+};
+
 const verifyPayment = async (sp_trxn_id: string) => {
   const verifiedResponse = await orderUtils.verifyPayment(sp_trxn_id);
-  const paymentStatus = await orderUtils.paymentStatus(sp_trxn_id);
 
   if (verifiedResponse.length) {
     await Order.findOneAndUpdate(
@@ -70,14 +75,22 @@ const verifyPayment = async (sp_trxn_id: string) => {
         "transaction.message": verifiedResponse[0].sp_message,
         "transaction.status": verifiedResponse[0].transaction_status,
         "transaction.method": verifiedResponse[0].method,
+        "transaction.bank_status": verifiedResponse[0].bank_status,
         "transaction.date_time": verifiedResponse[0].date_time,
+        status:
+          verifiedResponse[0].bank_status == "Success"
+            ? "Paid"
+            : verifiedResponse[0].bank_status == "Cancel"
+            ? "Cancelled"
+            : "Pending",
       }
     );
   }
-  return { verifiedResponse, paymentStatus };
+  return verifiedResponse;
 };
 
 export const orderService = {
   createOrder,
+  getOrders,
   verifyPayment,
 };

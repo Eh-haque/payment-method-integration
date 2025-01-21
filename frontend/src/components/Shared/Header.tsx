@@ -1,6 +1,6 @@
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 import { Button } from "../ui/button";
-import { SVGProps } from "react";
+import { SVGProps, useEffect } from "react";
 import { JSX } from "react/jsx-runtime";
 import { ShoppingBagIcon } from "lucide-react";
 import {
@@ -19,15 +19,39 @@ import {
   removeFromCart,
   updateQuantity,
 } from "@/redux/services/cart/cartSlice";
+import { useCreateOrderMutation } from "@/redux/services/order/order";
+import { toast } from "sonner";
 
 const CartSheet = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const cartData = useAppSelector((state) => state.cart);
 
-  const handlePlaceOrder = () => {
+  const [createOrder, { isLoading, isSuccess, data, isError, error }] =
+    useCreateOrderMutation();
+  const handlePlaceOrder = async () => {
     console.log(cartData);
+    await createOrder({ products: cartData.items });
   };
+
+  const toastId = "cart";
+  useEffect(() => {
+    if (isLoading) toast.loading("Processing ...", { id: toastId });
+
+    if (isSuccess) {
+      toast.success(JSON.stringify(data), { id: toastId });
+
+      if (data?.data?.payment?.checkout_url) {
+        setTimeout(() => {
+          window.location.href = data?.data?.payment?.checkout_url;
+          // window.location.reload();
+        }, 1000);
+      }
+    }
+
+    if (isError) toast.error(JSON.stringify(error), { id: toastId });
+  }, [data, error, isError, isLoading, isSuccess, navigate]);
 
   return (
     <Sheet>
@@ -128,7 +152,11 @@ const CartSheet = () => {
 
         <SheetFooter className="border-t pt-4">
           <SheetClose asChild>
-            <Button className="w-full" onClick={handlePlaceOrder}>
+            <Button
+              className="w-full"
+              onClick={handlePlaceOrder}
+              disabled={!cartData.totalQuantity}
+            >
               Place Order
             </Button>
           </SheetClose>
