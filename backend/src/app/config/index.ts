@@ -15,22 +15,4 @@ export default {
     access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN,
     refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN,
   },
-  sp: {
-    endpoint: process.env.SP_ENDPOINT,
-    username: process.env.SP_USERNAME,
-    password: process.env.SP_PASSWORD,
-    prefix: process.env.SP_PREFIX,
-    return_url: process.env.SP_RETURN_URL,
-    cancel_url: process.env.SP_CANCEL_URL,
-  },
 };
-
-/* 
-PORT=5000
-DATABASE_URL=mongodb+srv://ladium-backend:mhTO8PHSlwGnFy9V@cluster0.ryljg.mongodb.net/aiTools?retryWrites=true&w=majority
-
-JWT_ACCESS_SECRET=verysecret
-JWT_REFRESH_SECRET=veryverysecret
-JWT_ACCESS_EXPIRES_IN=7d
-JWT_REFRESH_EXPIRES_IN=365d
-*/
